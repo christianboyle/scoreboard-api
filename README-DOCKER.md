@@ -44,7 +44,7 @@ chmod +x scripts/docker-start.sh
 
 ## File Structure
 
-- `docker-compose.yml` - **Production configuration** (port 7777, resource limits)
+- `docker-compose.yml` - **Production configuration** (port 7777)
 - `docker-compose.dev.yml` - **Development configuration** (port 4000, no limits)
 - `Dockerfile` - Application container definition
 - `scripts/docker-start.sh` - Helper startup script
@@ -175,12 +175,12 @@ docker-compose ps
 ```
 
 ### Memory Issues
-The production compose file sets memory limits. If you need more memory:
+The production compose file doesn't set resource limits for maximum compatibility. If you want to add memory limits for your specific environment:
 ```yaml
 deploy:
   resources:
     limits:
-      memory: 1G  # Increase from 512M
+      memory: 512M  # Add memory limit if needed
 ```
 
 ## Performance Notes

@@ -1,5 +1,3 @@
-# Note: version specification is no longer needed in modern Docker Compose
-
 services:
   scoreboard-api:
     build: .
