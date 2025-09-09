@@ -2,20 +2,20 @@ const BASE_URL = "https://www.espn.com";
 
 const SPORTS = {
   MLB: "MLB",
-  NBA: "NBA",
-  NFL: "NFL",
-  NCAAM: "NCAAM",
-  NCAAF: "NCAAF",
-  NHL: "NHL",
+  // NBA: "NBA", // Disabled for now
+  // NFL: "NFL", // Disabled for now
+  // NCAAM: "NCAAM", // Disabled for now
+  // NCAAF: "NCAAF", // Disabled for now
+  // NHL: "NHL", // Disabled for now
 };
 
 const SPORT_URL_MAP = {
   [SPORTS.MLB]: "mlb",
-  [SPORTS.NBA]: "nba",
-  [SPORTS.NFL]: "nfl",
-  [SPORTS.NCAAM]: "mens-college-basketball",
-  [SPORTS.NCAAF]: "college-football",
-  [SPORTS.NHL]: "nhl",
+  // [SPORTS.NBA]: "nba", // Disabled for now
+  // [SPORTS.NFL]: "nfl", // Disabled for now
+  // [SPORTS.NCAAM]: "mens-college-basketball", // Disabled for now
+  // [SPORTS.NCAAF]: "college-football", // Disabled for now
+  // [SPORTS.NHL]: "nhl", // Disabled for now
 };
 
 const getScoreboardURL = (sport: string) =>
