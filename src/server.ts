@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express, { Router } from "express";
 import path from "path";
-import browserSync from "browser-sync";
 import eventsRoute from "./routes/events";
 import statsRoute from "./routes/stats";
 import cors from "cors";
@@ -44,14 +43,19 @@ app.listen(port, () => {
 });
 
 if (process.env.NODE_ENV === "development") {
-  browserSync({
-    files: ["public/**/*.{html,js,css}"],
-    server: "public",
-    port: port as number,
-    ui: false,
-    online: false,
-    notify: false,
-    open: false,
-    logLevel: "silent",
-  });
+  try {
+    const browserSync = require("browser-sync");
+    browserSync({
+      files: ["public/**/*.{html,js,css}"],
+      server: "public",
+      port: port as number,
+      ui: false,
+      online: false,
+      notify: false,
+      open: false,
+      logLevel: "silent",
+    });
+  } catch (error) {
+    console.warn("browser-sync not available in production mode");
+  }
 }
