@@ -22,7 +22,7 @@ const SPORT_URL_MAP = {
 // Format: { start: "MM-DD", end: "MM-DD" }
 // NOTE: Update these dates each year as needed
 const SEASON_DATES = {
-  [SPORTS.MLB]: { start: "03-20", end: "11-01" }, // Spring training through World Series
+  [SPORTS.MLB]: { start: "02-20", end: "11-01" }, // Spring training through World Series
   // [SPORTS.NBA]: { start: "10-15", end: "06-30" }, // Preseason through Finals
   // [SPORTS.NFL]: { start: "09-01", end: "02-15" }, // Regular season through Super Bowl
   // [SPORTS.NCAAM]: { start: "11-01", end: "04-15" }, // Regular season through Final Four
