@@ -1,47 +1,129 @@
-import { getPageData } from "./scrape";
+import fetch from "node-fetch";
 
-export async function scrapeScores(url: string, sport: string) {
-  const events = await getPageData(url, "scoreboard");
-  if (!events) return null;
+import { getScoreboardApiURL } from "../constants/sports";
+import { IScore, IVenue } from "../interfaces/events";
 
-  let scores: {}[] = [];
+interface EspnTeam {
+  shortDisplayName: string;
+  alternateColor: string;
+  color: string;
+  displayName: string;
+  name: string;
+  logo: string;
+  location: string;
+  abbreviation: string;
+  isActive: boolean;
+}
 
-  events.map((event: any) => {
-    const { competitors, date, shortName, status, vnue } = event;
+interface EspnCompetitor {
+  homeAway: "home" | "away";
+  score: string;
+  team: EspnTeam;
+}
 
-    const home = competitors.find((team: any) => team.isHome);
-    const away = competitors.find((team: any) => !team.isHome);
-    delete home.links;
-    delete home.uid;
-    delete home.id;
-    delete away.links;
-    delete away.uid;
-    delete away.id;
-    delete away.recordSummary;
-    delete away.standingSummary;
-    delete home.recordSummary;
-    delete home.standingSummary;
+interface EspnStatusType {
+  state: "pre" | "in" | "post";
+  detail: string;
+  shortDetail: string;
+  completed: boolean;
+}
 
-    scores = [
-      ...scores,
-      {
-        startTime: date,
-        shortName,
-        status: {
-          inning: status.period,
-          state: status.state,
-          detail: status.detail,
-          shortDetail: status.detail,
-          completed: event.completed,
-        },
-        teams: {
-          awayTeam: away,
-          homeTeam: home,
-        },
-        venue: vnue,
-      },
-    ];
+interface EspnCompetition {
+  competitors: EspnCompetitor[];
+  status: {
+    period: number;
+    type: EspnStatusType;
+  };
+  venue?: IVenue;
+}
+
+interface EspnEvent {
+  date: string;
+  shortName: string;
+  competitions: EspnCompetition[];
+}
+
+interface EspnScoreboardResponse {
+  events?: EspnEvent[];
+}
+
+function mapCompetitor(competitor: EspnCompetitor) {
+  const { team, score, homeAway } = competitor;
+
+  return {
+    shortDisplayName: team.shortDisplayName,
+    alternateColor: team.alternateColor,
+    color: team.color,
+    displayName: team.displayName,
+    name: team.name,
+    logo: team.logo,
+    location: team.location,
+    abbreviation: team.abbreviation,
+    isActive: team.isActive,
+    score,
+    homeAway,
+    isHome: homeAway === "home",
+  };
+}
+
+function mapEvent(event: EspnEvent): IScore | null {
+  const competition = event.competitions[0];
+  if (!competition) return null;
+
+  const home = competition.competitors.find(
+    (competitor) => competitor.homeAway === "home"
+  );
+  const away = competition.competitors.find(
+    (competitor) => competitor.homeAway === "away"
+  );
+
+  if (!home || !away) return null;
+
+  const { type, period } = competition.status;
+
+  return {
+    startTime: event.date,
+    shortName: event.shortName,
+    status: {
+      inning: period,
+      state: type.state,
+      detail: type.detail,
+      shortDetail: type.shortDetail,
+      completed: type.completed,
+    },
+    teams: {
+      awayTeam: mapCompetitor(away),
+      homeTeam: mapCompetitor(home),
+    },
+    venue: competition.venue,
+  };
+}
+
+export async function scrapeScores(sport: string): Promise<IScore[] | null> {
+  const url = getScoreboardApiURL(sport);
+  if (!url) return null;
+
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
   });
-  // console.log(`[UPDATED] ${sport}`);
+
+  if (!res.ok) {
+    throw new Error(`ESPN scoreboard API returned ${res.status} for ${sport}`);
+  }
+
+  const data = (await res.json()) as EspnScoreboardResponse;
+  const events = data.events ?? [];
+
+  if (!events.length) {
+    console.warn(`[Scoreboard] No events returned for ${sport}`);
+    return [];
+  }
+
+  const scores = events
+    .map(mapEvent)
+    .filter((score): score is IScore => score !== null);
+
   return scores;
 }

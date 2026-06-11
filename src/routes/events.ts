@@ -1,7 +1,7 @@
 import express from "express";
 
 import { scrapeScores } from "../utils/scrapeScores";
-import { SPORTS, SPORT_URL_MAP, getScoreboardURL, isInSeason } from "../constants/sports";
+import { SPORTS, SPORT_URL_MAP, isInSeason } from "../constants/sports";
 
 const router = express.Router();
 
@@ -25,9 +25,6 @@ async function startSportScraping(sport: string) {
     return;
   }
 
-  const url = getScoreboardURL(sport);
-  if (!url) return;
-
   try {
     const updateSport = async () => {
       if (!isInSeason(sport)) {
@@ -37,12 +34,14 @@ async function startSportScraping(sport: string) {
       }
 
       try {
-        const data = await scrapeScores(url, sport);
+        const data = await scrapeScores(sport);
         if (data) {
           scores[sport] = data;
+        } else {
+          console.warn(`[Scoreboard] ${sport} returned no score data`);
         }
       } catch (error) {
-        console.error(`[ERROR] ${sport} scraping failed:`, error);
+        console.error(`[ERROR] ${sport} scoreboard fetch failed:`, error);
       }
     };
 

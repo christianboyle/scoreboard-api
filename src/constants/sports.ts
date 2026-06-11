@@ -1,4 +1,5 @@
 const BASE_URL = "https://www.espn.com";
+const ESPN_API_BASE = "https://site.api.espn.com/apis/site/v2/sports";
 
 const SPORTS = {
   MLB: "MLB",
@@ -16,6 +17,15 @@ const SPORT_URL_MAP = {
   // [SPORTS.NCAAM]: "mens-college-basketball", // Disabled for now
   // [SPORTS.NCAAF]: "college-football", // Disabled for now
   // [SPORTS.NHL]: "nhl", // Disabled for now
+};
+
+const SPORT_API_PATH_MAP: Record<string, string> = {
+  [SPORTS.MLB]: "baseball/mlb",
+  // [SPORTS.NBA]: "basketball/nba", // Disabled for now
+  // [SPORTS.NFL]: "football/nfl", // Disabled for now
+  // [SPORTS.NCAAM]: "basketball/mens-college-basketball", // Disabled for now
+  // [SPORTS.NCAAF]: "football/college-football", // Disabled for now
+  // [SPORTS.NHL]: "hockey/nhl", // Disabled for now
 };
 
 // Season dates configuration
@@ -70,9 +80,38 @@ const getScoreboardURL = (sport: string) =>
     ? console.error("Sport not found")
     : `${BASE_URL}/${SPORT_URL_MAP[sport]}/scoreboard`;
 
+const getScoreboardApiURL = (sport: string): string | null => {
+  const apiPath = SPORT_API_PATH_MAP[sport];
+  if (!apiPath) {
+    console.error(`[Scoreboard API] No API path configured for ${sport}`);
+    return null;
+  }
+
+  return `${ESPN_API_BASE}/${apiPath}/scoreboard`;
+};
+
 const getStatsURL = (sport: string) =>
   !SPORT_URL_MAP[sport]
     ? console.error("Sport not found")
     : `${BASE_URL}/${SPORT_URL_MAP[sport]}/stats`;
 
-export { SPORTS, SPORT_URL_MAP, SEASON_DATES, getScoreboardURL, getStatsURL, isInSeason };
+const getStatsApiURL = (sport: string): string | null => {
+  const apiPath = SPORT_API_PATH_MAP[sport];
+  if (!apiPath) {
+    console.error(`[Stats API] No API path configured for ${sport}`);
+    return null;
+  }
+
+  return `${ESPN_API_BASE}/${apiPath}/statistics`;
+};
+
+export {
+  SPORTS,
+  SPORT_URL_MAP,
+  SEASON_DATES,
+  getScoreboardURL,
+  getScoreboardApiURL,
+  getStatsURL,
+  getStatsApiURL,
+  isInSeason,
+};

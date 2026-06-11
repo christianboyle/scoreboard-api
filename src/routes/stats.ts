@@ -1,7 +1,7 @@
 import express from "express";
 
 import { scrapeStats } from "../utils/scrapeStats";
-import { SPORTS, SPORT_URL_MAP, getStatsURL } from "../constants/sports";
+import { SPORTS, SPORT_URL_MAP } from "../constants/sports";
 
 const router = express.Router();
 
@@ -13,30 +13,35 @@ const stats: Scores = {};
 
 const seconds = (n: number) => 1000 * n;
 
-async function startSchedule() {
-  for (const sport in SPORTS) {
+async function startSportStats(sport: string) {
+  const updateSport = async () => {
     try {
-      const url = getStatsURL(sport);
+      const data = await scrapeStats(sport);
 
-      if (url) {
-        const updateSport = async () => {
-          const data = await scrapeStats(url);
-
-          if (data) {
-            stats[sport] = data;
-          }
-        };
-
-        await updateSport();
-
-        setInterval(async () => {
-          await updateSport();
-        }, seconds(30));
+      if (data) {
+        stats[sport] = data;
+      } else {
+        console.warn(`[Stats] ${sport} returned no leader data`);
       }
     } catch (error) {
-      console.log(`[ERROR] ${sport}`);
-      console.error(error);
+      console.error(`[ERROR] ${sport} stats fetch failed:`, error);
     }
+  };
+
+  await updateSport();
+
+  setInterval(async () => {
+    await updateSport();
+  }, seconds(30));
+
+  console.log(`[Schedule] Started stats fetching for ${sport}`);
+}
+
+async function startSchedule() {
+  console.log(`[Schedule] Initializing stats schedule...`);
+
+  for (const sport in SPORTS) {
+    await startSportStats(sport);
   }
 }
 

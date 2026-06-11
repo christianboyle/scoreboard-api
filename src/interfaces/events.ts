@@ -3,6 +3,16 @@ export interface IEvents {
   scores: IScore[];
 }
 
+export interface IVenue {
+  id: string;
+  fullName: string;
+  address?: {
+    city: string;
+    state: string;
+  };
+  indoor?: boolean;
+}
+
 export interface IScore {
   startTime: string;
   shortName: string;
@@ -11,6 +21,7 @@ export interface IScore {
     awayTeam: ITeam;
     homeTeam: ITeam;
   };
+  venue?: IVenue;
 }
 
 export interface IStatus {
@@ -33,4 +44,5 @@ export interface ITeam {
   isActive: boolean;
   score: string;
   homeAway: "home" | "away";
+  isHome?: boolean;
 }
